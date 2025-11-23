@@ -88,7 +88,7 @@ export class UIHelpers {
                 }
                 last_collision_index = i;
             } else if (last_collision_index == (i - 1)) {
-                points.push([x, max_y]);
+                points.push([data[i-1][0], max_y]);
             }
         }
         return points;

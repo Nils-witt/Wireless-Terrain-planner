@@ -133,18 +133,18 @@ export class ChartController {
             throw e;
         }
         terrain.sort((a, b) => a[0] - b[0]);
+        // The line of sight runs from antenna tip to antenna tip; the collision check
+        // must use the same line as the one drawn.
+        const start_y = terrain[0][1] + antenna_one.getHeight();
+        const end_x = terrain[terrain.length - 1][0];
+        const end_y = terrain[terrain.length - 1][1] + antenna_two.getHeight();
         let los: [number, number][] = [
-            [0, terrain[0][1] + antenna_one.getHeight()],
-            [terrain[terrain.length - 1][0], terrain[terrain.length - 1][1] + antenna_two.getHeight()],
+            [0, start_y],
+            [end_x, end_y],
         ];
 
-        let collision_points: [number, number][] = UIHelpers.getCollisionPoints(terrain, (x) => {
-            let start_y = terrain[0][1] + 4;
-            let m =
-                (terrain[terrain.length - 1][1] + antenna_two.getHeight() - (terrain[0][1] + antenna_one.getHeight())) /
-                terrain[terrain.length - 1][0];
-            return m * x + start_y;
-        });
+        const m = (end_y - start_y) / end_x;
+        let collision_points: [number, number][] = UIHelpers.getCollisionPoints(terrain, (x) => m * x + start_y);
         this.updateChart(terrain, los, collision_points);
     }
 

@@ -1,127 +1,166 @@
-# pg — elevation profile explorer
+# Wireless Terrain Planner
 
-Small web + Go backend project for generating elevation profiles and visualizing maps.
+Plan a point-to-point radio link on a map. Place two antennas, and the app draws the terrain between them, checks whether the line of sight is blocked, and estimates the received signal and range.
 
-This repository contains a lightweight frontend (Vite + TypeScript) and a Go backend that computes elevation profiles from geospatial tile data. A proxy (nginx) is used in front of the services when running with Docker Compose.
+It is a single Go binary. The server computes elevation profiles from 1 m DGM1 GeoTIFF tiles, and it serves the web UI embedded in the binary. The UI is a Vite + TypeScript app built on MapLibre GL and Chart.js.
 
-## Repository layout
+## Features
 
-- `frontend/` — Vite + TypeScript single-page app. `npm run build` writes to `internal/web/dist`, which is embedded into the server binary.
-- `server/` — Go HTTP server and elevation profile code. See `cmd` (entry point) and `internal`. `internal/web` embeds and serves the built frontend.
-- `proxy/` — `nginx.conf` used by the `proxy` service in the Compose setups.
-- `compose.yaml` — Docker Compose file that builds the local `frontend` and `server` images and runs `proxy`.
-- `compose-ghcr.yaml` — Docker Compose file that references prebuilt images hosted on GHCR.
+- Right-click the map to set the position of **Antenna One** or **Antenna Two**.
+- Per antenna: frequency (MHz), transmit power (dBm), antenna gain (dBi), mast height (m) and receiver sensitivity.
+- **Terrain chart** between the two antennas, with the line of sight drawn from antenna tip to antenna tip and the points where terrain rises above it marked.
+- **Expected signal** and **range circle** per antenna, using the Friis free-space model. Terrain diffraction is not modelled, so treat the numbers as an optimistic upper bound.
+- Distance and azimuth between the antennas.
 
-## Prerequisites
+The base map is OpenStreetMap raster tiles loaded from `tile.openstreetmap.org` in the browser, so the OSM [tile usage policy](https://operations.osmfoundation.org/policies/tiles/) applies.
 
-- Node.js (recommended latest LTS), npm or yarn — for the frontend
-- Go 1.26 or newer — for local backend dev (see `go.mod`)
-- Docker & Docker Compose (for containerized runs)
+## Quick start
 
-## Quickstart — Docker Compose (local build)
+### Docker
 
-This will build the `frontend` and `server` images from the repository and start the `proxy`, `frontend` and `app` services.
+The tiles are not part of the repository (see [Elevation data](#elevation-data)). Mount them into the container:
 
 ```bash
-# from project root
-docker compose -f compose.yaml up --build
+docker build -t wireless-terrain-planner .
+docker run --rm -p 8000:8000 \
+  -v "$PWD/dgm1_tiff_kacheln:/dgm1_tiff_kacheln:ro" \
+  wireless-terrain-planner
 ```
 
-The `proxy` service exposes port 80 on the host. The nginx configuration in `proxy/nginx.conf` proxies requests to the frontend and backend containers.
+Open <http://localhost:8000>. The image is multi-stage: it builds the frontend with Node, compiles a static Go binary that embeds it, and ships that binary in a distroless image. The container runs as a non-root user, so the tile files must be world-readable.
 
-## Quickstart — Docker Compose (GHCR images)
+### From source
 
-If you prefer to use prebuilt images published to GHCR, run:
-
-```bash
-docker compose -f compose-ghcr.yaml up
-```
-
-## Local development
-
-Frontend
+You need Go 1.26+ and Node.js (CI uses 26.x). No GDAL or other system libraries are required.
 
 ```bash
-cd frontend
-# install dependencies (npm example)
-npm install
-# start Vite dev server
-npm run dev
-```
+# build the frontend first; the server embeds the result (internal/web/dist)
+(cd frontend && npm ci && npm run build)
 
-The frontend dev server runs on Vite's default port (usually 5173). Open the URL printed by Vite in your browser. It proxies `/api` to the Go server at `http://localhost:8000` (the server's default `LISTEN_ADDR`), so start the backend (see below) alongside it. Set `API_TARGET` to point the proxy elsewhere, e.g. `API_TARGET=http://localhost:9000 npm run dev`.
-
-Backend (Go)
-
-```bash
-# build the frontend once; the server embeds the result (internal/web/dist)
-(cd frontend && npm install && npm run build)
 TILE_DIR=./dgm1_tiff_kacheln LISTEN_ADDR=:5001 go run ./cmd/server
-# run the tests
-go test ./...
 ```
 
-The UI is then at `http://localhost:5001/` and the API at `/api`. The frontend is embedded at compile time, so rebuild it and restart the server to pick up frontend changes. Without a frontend build the server still starts and serves only `/api` (it logs a warning); `go build`, `go vet` and `go test` work without one.
+Open <http://localhost:5001>. The frontend is embedded at compile time, so rebuild it and restart the server to pick up frontend changes. Without a frontend build the server still starts and serves only `/api`, and it logs a warning.
+
+### Prebuilt binaries
+
+Tagged releases attach archives for Linux, macOS and Windows (amd64 and arm64) to the [GitHub Releases](../../releases) page, built by GoReleaser. Each one is a standalone binary with the UI included.
+
+## Elevation data
+
+The server reads **DGM1** GeoTIFF tiles from `TILE_DIR`. Each tile covers 1 km × 1 km at 1 m resolution, in EPSG:25832 (ETRS89 / UTM zone 32N), and is named after its south-west corner:
+
+```
+dgm1_32_<easting km>_<northing km>_1_nw_2021.tif      e.g. dgm1_32_360_5613_1_nw_2021.tif
+```
+
+- Only the tiles you provide are used. A profile that crosses a missing tile has no samples there, so download the area you want to plan in.
+- The reader is built in. It handles uncompressed, LZW and Deflate GeoTIFFs, with strips or tiles.
+- Points are projected to UTM zone 32N, so coverage is limited to data in that zone.
+- The tile directory is git-ignored.
+
+## Configuration
 
 The server is configured through environment variables:
 
-| Variable          | Default               | Meaning                                                   |
-|-------------------|-----------------------|-----------------------------------------------------------|
-| `LISTEN_ADDR`     | `:8000`               | Address to listen on                                      |
-| `TILE_DIR`        | `/dgm1_tiff_kacheln`  | Directory containing the `.tif` elevation tiles           |
-| `TILE_CACHE_SIZE` | `32`                  | Decoded tiles kept in memory (about 4 MB each)            |
+| Variable          | Default             | Meaning                                                                                                          |
+| ----------------- | ------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `LISTEN_ADDR`     | `:8000`             | Address to listen on                                                                                             |
+| `TILE_DIR`        | `dgm1_tiff_kacheln` | Directory containing the `.tif` tiles, relative to the working directory (`/dgm1_tiff_kacheln` in the container) |
+| `TILE_CACHE_SIZE` | `32`                | Decoded tiles kept in memory (about 4 MB each)                                                                   |
 
-Notes about Dockerfile: the root `Dockerfile` is a multi-stage build: it builds the frontend with Node, compiles a static Go binary that embeds it, and copies the binary into a minimal distroless image. Build it from the repository root (no GDAL or other system libraries needed). The container listens on port 8000 and runs as a non-root user, so the mounted tile directory must be world-readable. The compose files rely on the nginx proxy for routing, so you usually do not need to expose the app directly.
+## API
 
-## API (simple example)
+`GET /api` returns the elevation profile of the straight line between two WGS84 points.
 
-The server exposes a single API endpoint, `/api`, that accepts four query parameters and returns an elevation profile. Parameters:
+| Query parameter           | Meaning                 |
+| ------------------------- | ----------------------- |
+| `latitude1`, `longitude1` | Start point, in degrees |
+| `latitude2`, `longitude2` | End point, in degrees   |
 
-- `latitude1`, `longitude1` — first coordinate (lat/lon)
-- `latitude2`, `longitude2` — second coordinate (lat/lon)
-
-The response is a JSON array of `[distance_m, elevation_m]` pairs sampled every metre along the line, ordered by distance. Invalid or missing parameters return `400` with a JSON `{"error": "..."}` body.
-
-Example request (Docker image with port 8000 published on the host port 80):
+All four are required. Latitude must be within ±90 and longitude within ±180.
 
 ```bash
-curl "http://localhost/api?latitude1=52.0&longitude1=13.0&latitude2=52.1&longitude2=13.1"
+curl "http://localhost:8000/api?latitude1=50.6596&longitude1=7.1731&latitude2=50.6650&longitude2=7.1900"
 ```
 
-If you're running the Go server directly with `LISTEN_ADDR=:5001` (see above), point at port 5001:
+The response is a JSON array of `[distance_m, elevation_m]` pairs, ordered by distance from the start point and sampled about every metre. It grows with the length of the link, at roughly 40 bytes per metre.
+
+```json
+[[0, 102.42], [1.0001, 102.41], [2.0002, 102.36], "..."]
+```
+
+Samples that fall in a missing tile, on a nodata value, or in the last row or column of a tile are left out, so the array can have gaps. An invalid or missing parameter returns `400` with a JSON body listing every problem:
+
+```json
+{"error": "query parameter \"latitude1\" must be between -90 and 90\nmissing query parameter \"latitude2\""}
+```
+
+## Development
+
+### Repository layout
+
+| Path               | Contents                                                                                     |
+| ------------------ | -------------------------------------------------------------------------------------------- |
+| `cmd/server`       | Entry point: config, HTTP server, graceful shutdown                                          |
+| `internal/httpapi` | The `/api` handler and parameter validation                                                  |
+| `internal/profile` | Samples the line and interpolates elevations; LRU tile cache; loads crossed tiles in parallel |
+| `internal/geotiff` | Minimal GeoTIFF reader                                                                       |
+| `internal/utm`     | WGS84 to EPSG:25832 projection                                                               |
+| `internal/web`     | Embeds and serves the built frontend (`internal/web/dist`)                                   |
+| `frontend/`        | Vite + TypeScript app                                                                        |
+
+### Frontend
 
 ```bash
-curl "http://localhost:5001/api?latitude1=52.0&longitude1=13.0&latitude2=52.1&longitude2=13.1"
+cd frontend
+npm ci
+npm run dev
 ```
 
-## Data
+Vite serves the app on port 5173 and proxies `/api` to `http://localhost:8000`, so run the Go server alongside it. Point the proxy elsewhere with `API_TARGET`, for example `API_TARGET=http://localhost:9000 npm run dev`.
 
-- The compose files mount `./dgm1_tiff_kacheln` to `/dgm1_tiff_kacheln` in the app container. Place your elevation tiles there. Tiles must be DGM1 GeoTIFFs in EPSG:25832 named `dgm1_32_<easting km>_<northing km>_1_nw_2021.tif`; the server reads them itself (no GDAL required) and supports uncompressed, LZW and Deflate compression.
+`npm run build` type-checks with `tsc` and writes the bundle to `internal/web/dist`. That directory is git-ignored apart from a `.gitkeep` placeholder, which lets the Go packages compile without a frontend build. The build restores the placeholder after it empties the directory.
 
-## Build & CI notes
+### Backend
 
-- Frontend build: `cd frontend && npm run build` — this runs `tsc && vite build` as defined in `frontend/package.json` and writes to `internal/web/dist` (git-ignored except for a `.gitkeep` placeholder).
-- Frontend lint and format: `npm run lint` (oxlint, config in `frontend/.oxlintrc.json`), `npm run format` to apply Prettier and `npm run format:check` to verify it (config in `frontend/.prettierrc.json`). CI runs `tsc`, lint and the format check.
-- Server build: `go build ./cmd/server` (build the frontend first to embed it) — CI runs `go vet ./...` and `go test -race -shuffle=on ./...`, plus `golangci-lint` (`.golangci.yml`) and `govulncheck`. The Dockerfile builds a static binary.
-- Releases: pushing a `v*` tag runs GoReleaser (`.goreleaser.yaml`), which builds the frontend, cross-compiles the server for linux/darwin/windows on amd64/arm64 and attaches the archives and `checksums.txt` to a GitHub Release. Pull requests that touch the code run the same build as a snapshot without publishing. To try it locally: `goreleaser release --snapshot --clean --skip=publish`.
+```bash
+go test ./...
+go vet ./...
+```
+
+Both work without a frontend build. Benchmarks for the handler, profile sampler and GeoTIFF reader live next to the tests (`go test -bench . ./internal/...`).
+
+### Checks that CI runs
+
+| Area     | Checks                                                                                 |
+| -------- | -------------------------------------------------------------------------------------- |
+| Frontend | `npx tsc`, `npm run lint` (oxlint), `npm run format:check` (Prettier)                  |
+| Go       | `go test -race -shuffle=on ./...`, `go mod tidy -diff`, `golangci-lint`, `govulncheck` |
+
+Run `npm run format` in `frontend/` to apply Prettier. Dependabot keeps dependencies up to date.
+
+### Releases
+
+Pushing a `v*` tag runs GoReleaser (`.goreleaser.yaml`). It builds the frontend, cross-compiles the server and attaches the archives and `checksums.txt` to a GitHub Release. Pull requests that touch the code run the same build as a snapshot without publishing. To try it locally:
+
+```bash
+goreleaser release --snapshot --clean --skip=publish
+```
 
 ## Troubleshooting
 
-- If the server logs `tile not found`, check that `TILE_DIR` points at the tiles and that the file names match the pattern above. Samples in missing or unreadable tiles are left out of the profile.
-- If the frontend does not reach the backend when running with Docker Compose, check `proxy/nginx.conf` and that the compose stack is healthy (`docker compose ps`).
+- **Empty chart, or a `tile not found` warning in the server log.** `TILE_DIR` does not point at the tiles, the file names do not match the pattern above, or the antennas are outside the area you have tiles for.
+- **The UI shows a 404 and the log says `serving the API only`.** The frontend was not built before the server. Run `npm run build` in `frontend/` and restart.
+- **Permission errors in Docker.** The container runs as a non-root user, so the mounted tile directory and files must be readable by everyone.
+- **The map is blank.** The browser cannot reach `tile.openstreetmap.org`.
 
+## License
 
-# Copyright
-Copyright [2025] [Nils Witt]
+Copyright 2026 Nils Witt
 
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 
-     http://www.apache.org/licenses/LICENSE-2.0
+<http://www.apache.org/licenses/LICENSE-2.0>
 
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
+Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.

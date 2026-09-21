@@ -176,8 +176,9 @@ export class UIHelpers {
         freq_Hz: number,
         distance_m: number,
     ): number {
+        // friisPropagationLoss already includes both antenna gains (it is Pr/Pt).
         const pathLoss_dB = this.friisPropagationLoss(distance_m, freq_Hz, gt_dBi, gr_dBi);
-        return pt_dBm + gt_dBi + gr_dBi + pathLoss_dB;
+        return pt_dBm + pathLoss_dB;
     }
 
     static getMaxDistanceFriis(
@@ -189,7 +190,9 @@ export class UIHelpers {
     ): number {
         const combinded_gain = gt_dBi + gr_dBi + pt_dBm;
         if (combinded_gain > sensitivity_dBm) {
-            const max_pathloss_dB = sensitivity_dBm - combinded_gain;
+            // friisPropagationDistance applies the antenna gains itself, so the
+            // allowed loss (Pr/Pt) must not contain them.
+            const max_pathloss_dB = sensitivity_dBm - pt_dBm;
             return this.friisPropagationDistance(max_pathloss_dB, freq_Hz, gt_dBi, gr_dBi);
         }
         return -1;

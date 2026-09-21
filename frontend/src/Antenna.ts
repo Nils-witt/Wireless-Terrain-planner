@@ -286,7 +286,7 @@ export class Antenna {
                 this.transmittedPower_dBm,
                 this.antennaGain_dBi,
                 this.associatedAntenna.getAntennaGain(),
-                this.frequency * 1000000,
+                this.getFrequencyHz(),
                 this.associatedAntenna.getSensitivity(),
             );
         } else {
@@ -294,7 +294,7 @@ export class Antenna {
                 this.transmittedPower_dBm,
                 this.antennaGain_dBi,
                 this.antennaGain_dBi,
-                this.frequency * 1000000,
+                this.getFrequencyHz(),
                 this.antennaSensitivity,
             );
         }
@@ -335,6 +335,14 @@ export class Antenna {
         return this.antennaSensitivity;
     }
 
+    /**
+     * Returns the frequency in Hz. The frequency is stored in kHz (see setFrequency).
+     * @returns {number} The frequency in Hz
+     */
+    private getFrequencyHz(): number {
+        return this.frequency * 1000;
+    }
+
     updateExpectedSignal(no_rec = false): void {
         if (!this.associatedAntenna) {
             return;
@@ -344,7 +352,8 @@ export class Antenna {
             this.getAssociatedAntenna().getTransmittedPower(),
             this.getAntennaGain(),
             this.getAssociatedAntenna().getAntennaGain(),
-            240000,
+            // The associated antenna transmits, so its frequency applies.
+            this.getAssociatedAntenna().getFrequencyHz(),
             distance,
         );
         this.setExpectedSignal(pr);

@@ -12,20 +12,20 @@
     "format:check": "prettier --check ."
   },
   "devDependencies": {
-    "@types/node": "^24.3.0",
-    "oxlint": "^1.84.0",
+    "@types/node": "^26.6.2",
+    "oxlint": "^1.85.0",
     "prettier": "^3.9.8",
-    "typescript": "~5.9.2",
-    "vite": "7.1.11"
+    "typescript": "^7.0.2",
+    "vite": "^8.3.0"
   },
   "dependencies": {
-    "@fortawesome/fontawesome-svg-core": "^7.0.0",
-    "@fortawesome/free-brands-svg-icons": "^7.0.0",
-    "@fortawesome/free-regular-svg-icons": "^7.0.0",
-    "@fortawesome/free-solid-svg-icons": "^7.0.0",
-    "@rollup/plugin-typescript": "^12.1.4",
-    "@turf/turf": "^7.2.0",
-    "chart.js": "^4.5.0",
-    "maplibre-gl": "^5.7.3"
+    "@fortawesome/fontawesome-svg-core": "^7.3.1",
+    "@fortawesome/free-brands-svg-icons": "^7.3.1",
+    "@fortawesome/free-regular-svg-icons": "^7.3.1",
+    "@fortawesome/free-solid-svg-icons": "^7.3.1",
+    "@rollup/plugin-typescript": "^12.3.0",
+    "@turf/turf": "^7.4.0",
+    "chart.js": "^4.5.1",
+    "maplibre-gl": "^6.10.0"
   }
 }

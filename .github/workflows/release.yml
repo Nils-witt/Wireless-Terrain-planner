@@ -39,7 +39,7 @@ jobs:
 
       - uses: actions/setup-node@v7
         with:
-          node-version: 22.x
+          node-version: 26.x
           cache: npm
           cache-dependency-path: frontend/package-lock.json
 
@@ -65,7 +65,7 @@ jobs:
 
       - uses: actions/setup-node@v7
         with:
-          node-version: 22.x
+          node-version: 26.x
           cache: npm
           cache-dependency-path: frontend/package-lock.json
 

@@ -1,10 +1,16 @@
 import 'maplibre-gl/dist/maplibre-gl.css';
 import './styles.css';
-import {GeolocateControl, LngLat, Map as MapLibreMap, NavigationControl} from 'maplibre-gl';
+import {GeolocateControl, LngLat, Map as MapLibreMap, NavigationControl, setWorkerUrl} from 'maplibre-gl';
+// MapLibre 6 looks for its worker next to the bundled chunk, which doesn't exist after bundling.
+// Let Vite build the worker and point MapLibre at it, otherwise GeoJSON sources (the line and the
+// range circles) never load.
+import maplibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url';
 import {DataProvider} from './DataProvider';
 import {UIHelpers} from './uihelpers';
 import {AntennaEnum} from './Antenna';
 import {ChartController} from './controllers/ChartController';
+
+setWorkerUrl(maplibreWorkerUrl);
 
 const map = new MapLibreMap({
     container: 'map',

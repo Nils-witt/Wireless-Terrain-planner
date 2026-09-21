@@ -122,14 +122,10 @@ export class Circle {
     private updateOnMap() {
         if (this.map && this.center && this.radius > 0) {
             const circle = turfCircle(this.center.toArray(), this.radius, {units: 'meters'});
-            console.log('Circle:', circle);
-            console.log(circle);
             if (this.map.getSource('location-radius-' + this.id)) {
-                console.log(this.map.getSource('location-radius-' + this.id));
                 // @ts-ignore
                 this.map.getSource('location-radius-' + this.id).setData(circle);
             } else {
-                console.log('adding source');
                 this.map.addSource('location-radius-' + this.id, {
                     type: 'geojson',
                     data: circle,

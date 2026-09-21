@@ -65,35 +65,42 @@ export class LineController {
             }
             return;
         }
-        if (!map.getSource('line')) {
+        this.geojson.features[0].geometry.coordinates = [
+            [antenna_one.getLatlng().lng, antenna_one.getLatlng().lat],
+            [antenna_two.getLatlng().lng, antenna_two.getLatlng().lat],
+        ];
+        const lineColor = this.getLineColor(antenna_one, antenna_two);
+
+        const source = map.getSource('line');
+        if (source) {
+            // @ts-ignore
+            source.setData(this.geojson);
+        } else {
             map.addSource('line', {
                 type: 'geojson',
                 data: this.geojson,
             });
         }
-        map.removeLayer('line-animation');
 
-        map.addLayer({
-            id: 'line-animation',
-            type: 'line',
-            source: 'line',
-            layout: {
-                'line-cap': 'round',
-                'line-join': 'round',
-            },
-            paint: {
-                'line-color': this.getLineColor(antenna_one, antenna_two),
-                'line-width': 3,
-                'line-opacity': 0.8,
-            },
-        });
-
-        this.geojson.features[0].geometry.coordinates = [
-            [antenna_one.getLatlng().lng, antenna_one.getLatlng().lat],
-            [antenna_two.getLatlng().lng, antenna_two.getLatlng().lat],
-        ];
-        // @ts-ignore
-        map.getSource('line').setData(this.geojson);
+        // Add the layer once and restyle it, instead of rebuilding it on every update.
+        if (map.getLayer('line-animation')) {
+            map.setPaintProperty('line-animation', 'line-color', lineColor);
+        } else {
+            map.addLayer({
+                id: 'line-animation',
+                type: 'line',
+                source: 'line',
+                layout: {
+                    'line-cap': 'round',
+                    'line-join': 'round',
+                },
+                paint: {
+                    'line-color': lineColor,
+                    'line-width': 3,
+                    'line-opacity': 0.8,
+                },
+            });
+        }
     }
 
     private getLineColor(antenna_one: Antenna, antenna_two: Antenna): string {

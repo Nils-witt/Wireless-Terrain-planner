@@ -3,10 +3,22 @@
  * Contains: ChartController singleton for managing the Chart.js chart and updating datasets
  */
 
-import Chart from 'chart.js/auto';
+// Register only what the chart uses; 'chart.js/auto' would pull in every chart type.
+import {
+    Chart,
+    Colors,
+    LineController,
+    LineElement,
+    LinearScale,
+    PointElement,
+    ScatterController,
+    Tooltip,
+} from 'chart.js';
 import {DataProvider} from '../DataProvider';
 import {AntennaEnum} from '../Antenna';
 import {UIHelpers} from '../uihelpers';
+
+Chart.register(Colors, LineController, ScatterController, LineElement, PointElement, LinearScale, Tooltip);
 
 /**
  * Singleton controller for managing the terrain and antenna chart.
@@ -14,6 +26,8 @@ import {UIHelpers} from '../uihelpers';
 export class ChartController {
     private static instance: ChartController | null = null;
     private chart: Chart;
+    /** Aborts the in-flight terrain request when a newer update supersedes it. */
+    private pending: AbortController | null = null;
 
     /**
      * Constructs the ChartController and initializes the Chart.js chart.
@@ -88,16 +102,36 @@ export class ChartController {
         let antenna_one = DataProvider.getSharedInstance().getAntenna(AntennaEnum.ONE);
         let antenna_two = DataProvider.getSharedInstance().getAntenna(AntennaEnum.TWO);
 
+        this.pending?.abort();
+        this.pending = null;
+
         if (!antenna_one || !antenna_two || !antenna_one.getLatlng() || !antenna_two.getLatlng()) {
             this.chart.data.datasets[0].data = [];
             this.chart.update();
             return;
         }
 
-        let res = await fetch(
-            `/api?latitude1=${antenna_one.getLatlng().lat}&longitude1=${antenna_one.getLatlng().lng}&latitude2=${antenna_two.getLatlng().lat}&longitude2=${antenna_two.getLatlng().lng}`,
-        );
-        let terrain = await res.json();
+        const pending = new AbortController();
+        this.pending = pending;
+
+        let terrain;
+        try {
+            const res = await fetch(
+                `/api?latitude1=${antenna_one.getLatlng().lat}&longitude1=${antenna_one.getLatlng().lng}&latitude2=${antenna_two.getLatlng().lat}&longitude2=${antenna_two.getLatlng().lng}`,
+                {signal: pending.signal},
+            );
+            if (!res.ok) {
+                console.error(`Terrain request failed: ${res.status} ${res.statusText}`);
+                return;
+            }
+            terrain = await res.json();
+        } catch (e) {
+            // A newer update replaced this request; its result is the one to show.
+            if (e instanceof DOMException && e.name === 'AbortError') {
+                return;
+            }
+            throw e;
+        }
         terrain.sort((a, b) => a[0] - b[0]);
         let los: [number, number][] = [
             [0, terrain[0][1] + antenna_one.getHeight()],

@@ -18,6 +18,17 @@ export default {
     build: {
         outDir,
         emptyOutDir: true,
+        // The MapLibre chunk is ~1 MB by itself; anything past this means app code is bloating.
+        chunkSizeWarningLimit: 1100,
+        rolldownOptions: {
+            output: {
+                codeSplitting: {
+                    // MapLibre dominates the bundle and changes rarely; keeping it in its own
+                    // chunk lets browsers reuse it from cache when only app code changes.
+                    groups: [{name: 'maplibre', test: /node_modules[\\/]maplibre-gl/}],
+                },
+            },
+        },
     },
     plugins: [
         {

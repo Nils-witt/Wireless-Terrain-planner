@@ -3,15 +3,32 @@ name: Lint
 on:
   push:
     branches: [ "main" ]
+    paths: &go-paths
+      - cmd/**
+      - internal/**
+      - go.mod
+      - go.sum
+      - .golangci.yml
+      - .github/workflows/lint.yml
   pull_request:
     branches: [ "main" ]
+    paths: *go-paths
+  # New advisories land without any code change, so rescan weekly.
+  schedule:
+    - cron: "17 4 * * 1"
 
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   golangci-lint:
+    if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-go@v7
@@ -23,6 +40,7 @@ jobs:
 
   govulncheck:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
       - uses: golang/govulncheck-action@v1

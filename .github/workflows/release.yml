@@ -14,12 +14,18 @@ on:
       - go.mod
       - go.sum
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  # Never cancel a tag release halfway through.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   # Validates the GoReleaser config and cross-compiles every target without
   # publishing anything, so release problems show up on the PR, not on the tag.
   snapshot:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     permissions:
       contents: read
     steps:
@@ -45,6 +51,7 @@ jobs:
   release:
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     permissions:
       contents: write
     steps:

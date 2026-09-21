@@ -3,15 +3,27 @@ name: Server Go test
 on:
   push:
     branches: [ "main" ]
+    paths: &go-paths
+      - cmd/**
+      - internal/**
+      - go.mod
+      - go.sum
+      - .github/workflows/server-go-test.yml
   pull_request:
     branches: [ "main" ]
+    paths: *go-paths
 
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
     - uses: actions/checkout@v7
@@ -20,10 +32,7 @@ jobs:
       with:
         go-version-file: go.mod
     - name: Check go mod tidy
-      run: |
-        go mod tidy
-        git diff --exit-code go.mod go.sum
-    - name: Vet
-      run: go vet ./...
+      run: go mod tidy -diff
+    # go vet runs as part of golangci-lint (govet is in the standard set).
     - name: Test
       run: go test -race -shuffle=on ./...

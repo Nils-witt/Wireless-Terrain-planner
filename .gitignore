@@ -1,3 +1,8 @@
+
+/.agents
+/.claude
+/agent
+skills-lock.json
 # Created by https://www.toptal.com/developers/gitignore/api/python,macos,windows,linux,visualstudiocode,intellij
 # Edit at https://www.toptal.com/developers/gitignore?templates=python,macos,windows,linux,visualstudiocode,intellij
 
@@ -384,3 +389,13 @@ $RECYCLE.BIN/
 
 .idea/
 data/
+# Go server binary
+/server/server
+
+# Frontend
+node_modules/
+
+# Frontend build output, embedded into the server (only the placeholder is tracked)
+!/internal/web/dist/
+/internal/web/dist/*
+!/internal/web/dist/.gitkeep

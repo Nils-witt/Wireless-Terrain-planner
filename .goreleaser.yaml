@@ -1,0 +1,53 @@
+version: 2
+
+project_name: wireless-terrain-planner
+
+before:
+  hooks:
+    # The server embeds the frontend build (internal/web/dist), so it has to
+    # exist before the Go build runs.
+    - npm ci --prefix frontend
+    - npm run build --prefix frontend
+
+builds:
+  - id: server
+    main: ./cmd/server
+    binary: wireless-terrain-planner
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w
+
+archives:
+  - id: server
+    formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+    files:
+      - README.md
+
+checksum:
+  name_template: checksums.txt
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs"
+      - "^test"
+      - "^ci"
+      - "^chore"
+      - "^style"
+      - "^Merge pull request"
+      - "^Bump "

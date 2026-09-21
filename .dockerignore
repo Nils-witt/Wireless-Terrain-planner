@@ -1,0 +1,9 @@
+.git
+.idea
+.agents
+.claude
+agent
+data
+dgm1_tiff_kacheln
+frontend/node_modules
+internal/web/dist

@@ -3,12 +3,12 @@
  * Contains: UIHelpers singleton class, azimuth calculation, collision point detection, Friis signal calculation, and event-driven UI updates.
  */
 
-import {DataProvider, DataProviderEventEnum} from "./DataProvider";
-import {LngLat} from "maplibre-gl";
-import {AntennaEnum} from "./Antenna";
-import {ChartController} from "./controllers/ChartController";
-import {DistanceUIController} from "./controllers/DistanceUIController";
-import {LineController} from "./controllers/LineController";
+import {DataProvider, DataProviderEventEnum} from './DataProvider';
+import {LngLat} from 'maplibre-gl';
+import {AntennaEnum} from './Antenna';
+import {ChartController} from './controllers/ChartController';
+import {DistanceUIController} from './controllers/DistanceUIController';
+import {LineController} from './controllers/LineController';
 
 /**
  * Singleton class for UI helper methods and event-driven updates related to antennas and map.
@@ -23,15 +23,17 @@ export class UIHelpers {
     /**
      * Private constructor to enforce singleton pattern.
      */
-    private constructor() {
-    }
+    private constructor() {}
 
     /**
      * Initializes UIHelpers by subscribing to antenna position change events.
      * @returns {void}
      */
     public init(): void {
-        DataProvider.getSharedInstance().addEventListener(DataProviderEventEnum.ANTENNA_POSITION_CHANGED, this.updatedPositionHandler);
+        DataProvider.getSharedInstance().addEventListener(
+            DataProviderEventEnum.ANTENNA_POSITION_CHANGED,
+            this.updatedPositionHandler,
+        );
     }
 
     /**
@@ -55,8 +57,8 @@ export class UIHelpers {
         if (!coord1 || !coord2) {
             return null;
         }
-        const toRad = (deg: number) => deg * Math.PI / 180;
-        const toDeg = (rad: number) => rad * 180 / Math.PI;
+        const toRad = (deg: number) => (deg * Math.PI) / 180;
+        const toDeg = (rad: number) => (rad * 180) / Math.PI;
         const lat1 = toRad(coord1.lat);
         const lat2 = toRad(coord2.lat);
         const dLon = toRad(coord2.lng - coord1.lng);
@@ -83,17 +85,16 @@ export class UIHelpers {
             let y = point[1];
             let max_y = threshold(x);
             if (max_y < y) {
-                if (last_collision_index !== (i - 1)) {
+                if (last_collision_index !== i - 1) {
                     points.push([x, max_y]);
                 }
                 last_collision_index = i;
-            } else if (last_collision_index == (i - 1)) {
-                points.push([data[i-1][0], max_y]);
+            } else if (last_collision_index == i - 1) {
+                points.push([data[i - 1][0], max_y]);
             }
         }
         return points;
     }
-
 
     /**
      * Calculates the Friis transmission loss for a given distance, frequency, and gain.
@@ -103,7 +104,12 @@ export class UIHelpers {
      * @param gainRx_dBi - Receiver gain in dBi
      * @returns {number} Friis transmission loss in dB
      */
-    static friisPropagationLoss(distance: number, frequency: number, gainTx_dBi: number = 0, gainRx_dBi: number = 0): number {
+    static friisPropagationLoss(
+        distance: number,
+        frequency: number,
+        gainTx_dBi: number = 0,
+        gainRx_dBi: number = 0,
+    ): number {
         const c = 299792458; // Speed of light (m/s)
         const wavelength = c / frequency;
 
@@ -130,7 +136,12 @@ export class UIHelpers {
      * @param loss_dB - Maximum loss in dB
      * @returns {number} Friis propagation distance in meters
      */
-    static friisPropagationDistance(loss_dB: number, frequency: number, gainTx_dBi: number = 0, gainRx_dBi: number = 0): number {
+    static friisPropagationDistance(
+        loss_dB: number,
+        frequency: number,
+        gainTx_dBi: number = 0,
+        gainRx_dBi: number = 0,
+    ): number {
         const c = 299792458; // Speed of light (m/s)
         const wavelength = c / frequency;
 
@@ -147,9 +158,7 @@ export class UIHelpers {
         // => sqrt((gainTx * gainRx * wavelength^2) / loss_linear) / (4 * pi) = d
         const numerator = gainTx * gainRx * Math.pow(wavelength, 2);
         return Math.sqrt(numerator / loss_linear) / (4 * Math.PI);
-
     }
-
 
     /**
      * Calculates the received signal strength (in dBm) using the Friis transmission equation.
@@ -160,12 +169,24 @@ export class UIHelpers {
      * @param {number} distance_m - Distance between antennas in meters
      * @returns {number} Received signal strength in dBm
      */
-    static calculateFriisSignal(pt_dBm: number, gt_dBi: number, gr_dBi: number, freq_Hz: number, distance_m: number): number {
+    static calculateFriisSignal(
+        pt_dBm: number,
+        gt_dBi: number,
+        gr_dBi: number,
+        freq_Hz: number,
+        distance_m: number,
+    ): number {
         const pathLoss_dB = this.friisPropagationLoss(distance_m, freq_Hz, gt_dBi, gr_dBi);
         return pt_dBm + gt_dBi + gr_dBi + pathLoss_dB;
     }
 
-    static getMaxDistanceFriis(pt_dBm: number, gt_dBi: number, gr_dBi: number, freq_Hz: number, sensitivity_dBm: number): number {
+    static getMaxDistanceFriis(
+        pt_dBm: number,
+        gt_dBi: number,
+        gr_dBi: number,
+        freq_Hz: number,
+        sensitivity_dBm: number,
+    ): number {
         const combinded_gain = gt_dBi + gr_dBi + pt_dBm;
         if (combinded_gain > sensitivity_dBm) {
             const max_pathloss_dB = sensitivity_dBm - combinded_gain;

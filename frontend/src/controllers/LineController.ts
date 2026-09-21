@@ -3,11 +3,10 @@
  * Contains: LineController singleton for managing the line animation layer and geojson source
  */
 
-import {Map as MapLibreMap} from "maplibre-gl";
-import {Antenna, AntennaEnum} from "../Antenna";
-import {DataProvider} from "../DataProvider";
-import {DistanceUIController} from "./DistanceUIController";
-
+import {Map as MapLibreMap} from 'maplibre-gl';
+import {Antenna, AntennaEnum} from '../Antenna';
+import {DataProvider} from '../DataProvider';
+import {DistanceUIController} from './DistanceUIController';
 
 /**
  * Singleton controller for drawing and updating the line between antennas on the map.
@@ -18,8 +17,7 @@ export class LineController {
     /**
      * Private constructor for singleton pattern.
      */
-    private constructor() {
-    }
+    private constructor() {}
 
     /**
      * Returns the singleton instance of LineController.
@@ -37,16 +35,16 @@ export class LineController {
      * @type {Object}
      */
     geojson: any = {
-        'type': 'FeatureCollection',
-        'features': [
+        type: 'FeatureCollection',
+        features: [
             {
-                'type': 'Feature',
-                'geometry': {
-                    'type': 'LineString',
-                    'coordinates': [[0, 0]]
-                }
-            }
-        ]
+                type: 'Feature',
+                geometry: {
+                    type: 'LineString',
+                    coordinates: [[0, 0]],
+                },
+            },
+        ],
     };
 
     /**
@@ -56,7 +54,11 @@ export class LineController {
      * @param {Antenna | null} antenna_two - Second antenna
      * @returns {void}
      */
-    createLineBetweenAntennas(map: MapLibreMap | null = null, antenna_one: Antenna | null = null, antenna_two: Antenna | null = null): void {
+    createLineBetweenAntennas(
+        map: MapLibreMap | null = null,
+        antenna_one: Antenna | null = null,
+        antenna_two: Antenna | null = null,
+    ): void {
         if (!antenna_one || !antenna_two || !antenna_one.getLatlng() || !antenna_two.getLatlng()) {
             if (map.getLayer('line-animation')) {
                 map.removeLayer('line-animation');
@@ -65,32 +67,34 @@ export class LineController {
         }
         if (!map.getSource('line')) {
             map.addSource('line', {
-                'type': 'geojson',
-                'data': this.geojson
+                type: 'geojson',
+                data: this.geojson,
             });
         }
         map.removeLayer('line-animation');
 
         map.addLayer({
-            'id': 'line-animation',
-            'type': 'line',
-            'source': 'line',
-            'layout': {
+            id: 'line-animation',
+            type: 'line',
+            source: 'line',
+            layout: {
                 'line-cap': 'round',
-                'line-join': 'round'
+                'line-join': 'round',
             },
-            'paint': {
+            paint: {
                 'line-color': this.getLineColor(antenna_one, antenna_two),
                 'line-width': 3,
-                'line-opacity': 0.8
-            }
+                'line-opacity': 0.8,
+            },
         });
 
-        this.geojson.features[0].geometry.coordinates = [[antenna_one.getLatlng().lng, antenna_one.getLatlng().lat], [antenna_two.getLatlng().lng, antenna_two.getLatlng().lat]];
+        this.geojson.features[0].geometry.coordinates = [
+            [antenna_one.getLatlng().lng, antenna_one.getLatlng().lat],
+            [antenna_two.getLatlng().lng, antenna_two.getLatlng().lat],
+        ];
         // @ts-ignore
-        map.getSource('line').setData(this.geojson)
+        map.getSource('line').setData(this.geojson);
     }
-
 
     private getLineColor(antenna_one: Antenna, antenna_two: Antenna): string {
         const distance = DistanceUIController.calculateDistanceBetweenAntennas(antenna_one, antenna_two);
@@ -101,7 +105,6 @@ export class LineController {
         } else if (antenna_one.getExpectedRange() <= distance && antenna_two.getExpectedRange() > distance) {
             return 'orange';
         }
-
 
         return 'red';
     }

@@ -1,131 +1,130 @@
 <!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8"/>
-    <link rel="icon" type="image/svg+xml" href="/vite.svg"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <title>Webmap</title>
-</head>
+    <head>
+        <meta charset="UTF-8" />
+        <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+        <title>Webmap</title>
+    </head>
 
-<body>
-<!-- Background Map -->
-    <div id="map" class="map-background"></div>
+    <body>
+        <!-- Background Map -->
+        <div id="map" class="map-background"></div>
 
-    <!-- Overlay UI Panel -->
-    <div class="ui-panel">
-        <!-- Left Station Card -->
-        <div class="station-card left">
-            <div class="station-header">
-                <div class="station-title">
-                    <span class="value" id="device1-name">Not set</span>
+        <!-- Overlay UI Panel -->
+        <div class="ui-panel">
+            <!-- Left Station Card -->
+            <div class="station-card left">
+                <div class="station-header">
+                    <div class="station-title">
+                        <span class="value" id="device1-name">Not set</span>
+                    </div>
+                </div>
+                <div class="station-location">
+                    <span class="label"></span>
+                    <span class="value" id="device1-location">Not set</span>
+                </div>
+                <div class="station-row">
+                    <div>
+                        <span class="label">Frequency (MHz)</span>
+                        <input class="value" type="number" id="device1-frequency" value="" />
+                    </div>
+                </div>
+                <div class="station-row">
+                    <div>
+                        <span class="label">Azimuth</span>
+                        <input class="value" id="device1-azimuth" disabled />
+                    </div>
+                    <div>
+                        <span class="label">Sensitivity</span>
+                        <input class="value" id="device1-sensitivity" />
+                    </div>
+                    <div>
+                        <span class="label">Height</span>
+                        <input class="value" type="number" id="device1-height" min="0" max="100" value="4" />
+                    </div>
+                </div>
+                <div class="station-row">
+                    <div>
+                        <span class="label">Transmitted Power (dBm)</span>
+                        <input class="value" type="number" id="device1-txpwr" value="0" />
+                    </div>
+                    <div>
+                        <span class="label">Antenna Gain (dBi)</span>
+                        <input class="value" type="number" id="device1-gain" value="0" />
+                    </div>
+                </div>
+                <div class="expected-signal">
+                    <span class="label">Expected Signal</span>
+                    <span class="value dbm" id="device1-signal">Not set</span>
                 </div>
             </div>
-            <div class="station-location">
-                <span class="label"></span>
-                <span class="value" id="device1-location">Not set</span>
-            </div>
-            <div class="station-row">
-                <div>
-                    <span class="label">Frequency (MHz)</span>
-                    <input class="value" type="number" id="device1-frequency" value=""></input>
+
+            <!-- Center Chart Section -->
+            <div class="chart-section">
+                <div class="chart-header">
+                    <span class="label">Terrain</span>
+                    <span class="warning">&#9888;</span>
+                </div>
+                <div class="rainfall-row">
+                    <span>Distance</span>
+                </div>
+                <div class="distance-row">
+                    <span id="distance">Not set</span>
+                </div>
+                <div class="chart">
+                    <canvas id="terrainchart" style="height: 100%; width: 100%"></canvas>
                 </div>
             </div>
-            <div class="station-row">
-                <div>
-                    <span class="label">Azimuth</span>
-                    <input class="value" id="device1-azimuth" disabled/>
+
+            <!-- Right Station Card -->
+            <div class="station-card right">
+                <div class="station-header">
+                    <div class="station-title">
+                        <span class="value" id="device2-name">Not set</span>
+                    </div>
                 </div>
-                <div>
-                    <span class="label">Sensitivity</span>
-                    <input class="value" id="device1-sensitivity"/>
+                <div class="station-location">
+                    <span class="label"></span>
+                    <span class="value" id="device2-location">Not set</span>
                 </div>
-                <div>
-                    <span class="label">Height</span>
-                    <input class="value" type="number" id="device1-height" min="0" max="100" value="4">
+                <div class="station-row">
+                    <div>
+                        <span class="label">Frequency (MHz)</span>
+                        <input class="value" type="number" id="device2-frequency" value="" />
+                    </div>
                 </div>
-            </div>
-            <div class="station-row">
-                <div>
-                    <span class="label">Transmitted Power (dBm)</span>
-                    <input class="value" type="number" id="device1-txpwr" value="0">
+                <div class="station-row">
+                    <div>
+                        <span class="label">Height</span>
+                        <input class="value" type="number" id="device2-height" min="0" max="100" value="4" />
+                    </div>
+                    <div>
+                        <span class="label">Sensitivity</span>
+                        <input class="value" id="device2-sensitivity" />
+                    </div>
+                    <div>
+                        <span class="label">Azimuth</span>
+                        <input class="value" id="device2-azimuth" disabled />
+                    </div>
                 </div>
-                <div>
-                    <span class="label">Antenna Gain (dBi)</span>
-                    <input class="value" type="number" id="device1-gain" value="0">
+                <div class="station-row">
+                    <div>
+                        <span class="label">Transmitted Power (dBm)</span>
+                        <input class="value" type="number" id="device2-txpwr" value="0" />
+                    </div>
+                    <div>
+                        <span class="label">Antenna Gain (dBi)</span>
+                        <input class="value" type="number" id="device2-gain" value="0" />
+                    </div>
                 </div>
-            </div>
-            <div class="expected-signal">
-                <span class="label">Expected Signal</span>
-                <span class="value dbm" id="device1-signal">Not set</span>
+                <div class="expected-signal">
+                    <span class="label">Expected Signal</span>
+                    <span class="value dbm" id="device2-signal">Not set</span>
+                </div>
             </div>
         </div>
 
-        <!-- Center Chart Section -->
-        <div class="chart-section">
-            <div class="chart-header">
-                <span class="label">Terrain</span>
-                <span class="warning">&#9888;</span>
-            </div>
-            <div class="rainfall-row">
-                <span>Distance</span>
-            </div>
-            <div class="distance-row">
-                <span id="distance">Not set</span>
-            </div>
-            <div class="chart">
-                <canvas id="terrainchart" style="height: 100%; width: 100%"></canvas>
-            </div>
-        </div>
-
-        <!-- Right Station Card -->
-        <div class="station-card right">
-            <div class="station-header">
-                <div class="station-title">
-                    <span class="value" id="device2-name">Not set</span>
-                </div>
-            </div>
-            <div class="station-location">
-                <span class="label"></span>
-                <span class="value" id="device2-location">Not set</span>
-            </div>
-            <div class="station-row">
-                <div>
-                    <span class="label">Frequency (MHz)</span>
-                    <input class="value" type="number" id="device2-frequency" value="">
-                </div>
-            </div>
-            <div class="station-row">
-                <div>
-                    <span class="label">Height</span>
-                    <input class="value" type="number" id="device2-height" min="0" max="100" value="4">
-                </div>
-                <div>
-                    <span class="label">Sensitivity</span>
-                    <input class="value" id="device2-sensitivity"/>
-                </div>
-                <div>
-                    <span class="label">Azimuth</span>
-                    <input class="value" id="device2-azimuth" disabled/>
-                </div>
-
-            </div>
-            <div class="station-row">
-                <div>
-                    <span class="label">Transmitted Power (dBm)</span>
-                    <input class="value" type="number" id="device2-txpwr" value="0">
-                </div>
-                <div>
-                    <span class="label">Antenna Gain (dBi)</span>
-                    <input class="value" type="number" id="device2-gain" value="0">
-                </div>
-            </div>
-            <div class="expected-signal">
-                <span class="label">Expected Signal</span>
-                <span class="value dbm" id="device2-signal">Not set</span>
-            </div>
-        </div>
-    </div>
-
-<script type="module" src="/src/main.ts"></script>
-</body>
+        <script type="module" src="/src/main.ts"></script>
+    </body>
 </html>

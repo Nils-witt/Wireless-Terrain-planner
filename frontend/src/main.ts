@@ -1,10 +1,10 @@
 import 'maplibre-gl/dist/maplibre-gl.css';
 import './styles.css';
-import {GeolocateControl, LngLat, Map as MapLibreMap, NavigationControl} from "maplibre-gl";
-import {DataProvider} from "./DataProvider";
-import {UIHelpers} from "./uihelpers";
-import {AntennaEnum} from "./Antenna";
-import {ChartController} from "./controllers/ChartController";
+import {GeolocateControl, LngLat, Map as MapLibreMap, NavigationControl} from 'maplibre-gl';
+import {DataProvider} from './DataProvider';
+import {UIHelpers} from './uihelpers';
+import {AntennaEnum} from './Antenna';
+import {ChartController} from './controllers/ChartController';
 
 const map = new MapLibreMap({
     container: 'map',
@@ -13,26 +13,25 @@ const map = new MapLibreMap({
     attributionControl: false,
     rollEnabled: true,
     style: {
-        'version': 8,
-        'sources': {
+        version: 8,
+        sources: {
             'raster-tiles': {
-                'type': 'raster',
-                'tiles': ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
-                'tileSize': 256,
-                'minzoom': 0,
-                'maxzoom': 19
-            }
+                type: 'raster',
+                tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
+                tileSize: 256,
+                minzoom: 0,
+                maxzoom: 19,
+            },
         },
-        'layers': [
+        layers: [
             {
-                'id': 'simple-tiles',
-                'type': 'raster',
-                'source': 'raster-tiles',
-            }
-        ]
-    }
+                id: 'simple-tiles',
+                type: 'raster',
+                source: 'raster-tiles',
+            },
+        ],
+    },
 });
-
 
 DataProvider.getSharedInstance().init(map);
 UIHelpers.getInstance().init();
@@ -40,7 +39,7 @@ ChartController.getInstance().init();
 
 const geolocate = new GeolocateControl({
     positionOptions: {
-        enableHighAccuracy: true
+        enableHighAccuracy: true,
     },
     trackUserLocation: true,
     showAccuracyCircle: true,
@@ -49,11 +48,11 @@ const geolocate = new GeolocateControl({
 let navControl = new NavigationControl({
     showCompass: false,
     visualizePitch: false,
-    showZoom: true
+    showZoom: true,
 });
 
-map.addControl(navControl, 'top-right');  // Position in the bottom-left corner
-map.addControl(geolocate, 'top-right');  // Position in the bottom-left corner
+map.addControl(navControl, 'top-right'); // Position in the bottom-left corner
+map.addControl(geolocate, 'top-right'); // Position in the bottom-left corner
 
 DataProvider.getSharedInstance().setMap(map);
 
@@ -109,19 +108,17 @@ document.addEventListener('click', (e) => {
 contextMenu.querySelector('#set-antenna-1')?.addEventListener('click', () => {
     if (contextMenuLngLat) {
         let current = DataProvider.getSharedInstance().getAntenna(AntennaEnum.ONE);
-        current.setLatlng(contextMenuLngLat)
-
+        current.setLatlng(contextMenuLngLat);
     }
     contextMenu.style.display = 'none';
 });
 contextMenu.querySelector('#set-antenna-2')?.addEventListener('click', () => {
     if (contextMenuLngLat) {
         let current = DataProvider.getSharedInstance().getAntenna(AntennaEnum.TWO);
-        current.setLatlng(contextMenuLngLat)
+        current.setLatlng(contextMenuLngLat);
     }
     contextMenu.style.display = 'none';
 });
-
 
 /**
  * Sets up event listeners for the antenna power, gain, frequency, and height input fields in the UI.
@@ -129,7 +126,6 @@ contextMenu.querySelector('#set-antenna-2')?.addEventListener('click', () => {
  * @returns {void}
  */
 function setupAntennaListeners() {
-
     const antenna1 = DataProvider.getSharedInstance().getAntenna(AntennaEnum.ONE);
     const antenna2 = DataProvider.getSharedInstance().getAntenna(AntennaEnum.TWO);
 
@@ -139,7 +135,6 @@ function setupAntennaListeners() {
     if (!antenna2) {
         console.log('Antenna 2 not found');
     }
-
 
     // Left antenna (AntennaEnum.ONE)
     const txpwr1 = document.getElementById('device1-txpwr') as HTMLInputElement;
@@ -152,31 +147,38 @@ function setupAntennaListeners() {
     const freq2 = document.getElementById('device2-frequency') as HTMLInputElement;
     const height2 = document.getElementById('device2-height') as HTMLInputElement;
 
-
-    if (txpwr1) txpwr1.addEventListener('change', () => {
-        antenna1.setTransmittedPower(Number(txpwr1.value));
-    });
-    if (gain1) gain1.addEventListener('change', () => {
-        antenna1.setAntennaGain(Number(gain1.value));
-    });
-    if (freq1) freq1.addEventListener('change', () => {
-        antenna1.setFrequency(Number(freq1.value) * 1000);
-    })
-    if (height1) height1.addEventListener('change', () => {
-        antenna1.setHeight(Number(height1.value));
-    })
-    if (txpwr2) txpwr2.addEventListener('change', () => {
-        antenna2.setTransmittedPower(Number(txpwr2.value));
-    });
-    if (gain2) gain2.addEventListener('change', () => {
-        antenna2.setAntennaGain(Number(gain2.value));
-    });
-    if (freq2) freq2.addEventListener('change', () => {
-        antenna2.setFrequency(Number(freq2.value)* 1000);
-    })
-    if (height2) height2.addEventListener('change', () => {
-        antenna2.setHeight(Number(height2.value));
-    })
+    if (txpwr1)
+        txpwr1.addEventListener('change', () => {
+            antenna1.setTransmittedPower(Number(txpwr1.value));
+        });
+    if (gain1)
+        gain1.addEventListener('change', () => {
+            antenna1.setAntennaGain(Number(gain1.value));
+        });
+    if (freq1)
+        freq1.addEventListener('change', () => {
+            antenna1.setFrequency(Number(freq1.value) * 1000);
+        });
+    if (height1)
+        height1.addEventListener('change', () => {
+            antenna1.setHeight(Number(height1.value));
+        });
+    if (txpwr2)
+        txpwr2.addEventListener('change', () => {
+            antenna2.setTransmittedPower(Number(txpwr2.value));
+        });
+    if (gain2)
+        gain2.addEventListener('change', () => {
+            antenna2.setAntennaGain(Number(gain2.value));
+        });
+    if (freq2)
+        freq2.addEventListener('change', () => {
+            antenna2.setFrequency(Number(freq2.value) * 1000);
+        });
+    if (height2)
+        height2.addEventListener('change', () => {
+            antenna2.setHeight(Number(height2.value));
+        });
 }
 
 setupAntennaListeners();

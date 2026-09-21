@@ -1,0 +1,12 @@
+{
+  "tabWidth": 4,
+  "printWidth": 120,
+  "singleQuote": true,
+  "bracketSpacing": false,
+  "overrides": [
+    {
+      "files": ["*.json"],
+      "options": {"tabWidth": 2}
+    }
+  ]
+}

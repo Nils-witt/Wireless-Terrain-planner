@@ -1,4 +1,5 @@
-body, html {
+body,
+html {
     margin: 0;
     padding: 0;
     font-family: 'Segoe UI', Arial, sans-serif;
@@ -9,7 +10,8 @@ body, html {
 
 .map-background {
     position: fixed;
-    top: 0; left: 0;
+    top: 0;
+    left: 0;
     width: 100vw;
     height: 100vh;
 }
@@ -24,9 +26,9 @@ body, html {
     flex-direction: row;
     justify-content: space-between;
     z-index: 2;
-    background: rgba(255,255,255,0.85);
+    background: rgba(255, 255, 255, 0.85);
     border-radius: 18px;
-    box-shadow: 0 6px 32px 0 rgba(50,50,50,0.15);
+    box-shadow: 0 6px 32px 0 rgba(50, 50, 50, 0.15);
     padding: 24px 32px 16px 32px;
     gap: 32px;
 }
@@ -38,17 +40,27 @@ body, html {
     padding: 20px 24px 16px 24px;
     background: #fff;
     border-radius: 20px;
-    box-shadow: 0 4px 20px 0 rgba(60,60,60,0.13), 0 1.5px 6px 0 rgba(60,60,60,0.07);
+    box-shadow:
+        0 4px 20px 0 rgba(60, 60, 60, 0.13),
+        0 1.5px 6px 0 rgba(60, 60, 60, 0.07);
     position: relative;
     border-top: 5px solid #3a7fe8;
-    transition: box-shadow 0.18s cubic-bezier(.4,0,.2,1), transform 0.18s cubic-bezier(.4,0,.2,1);
+    transition:
+        box-shadow 0.18s cubic-bezier(0.4, 0, 0.2, 1),
+        transform 0.18s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.station-card.left { margin-right: 32px; }
-.station-card.right { margin-left: 32px; }
+.station-card.left {
+    margin-right: 32px;
+}
+.station-card.right {
+    margin-left: 32px;
+}
 
 .station-card:hover {
-    box-shadow: 0 8px 32px 0 rgba(60,60,60,0.18), 0 3px 12px 0 rgba(60,60,60,0.10);
+    box-shadow:
+        0 8px 32px 0 rgba(60, 60, 60, 0.18),
+        0 3px 12px 0 rgba(60, 60, 60, 0.1);
     transform: translateY(-2px) scale(1.012);
 }
 
@@ -74,11 +86,12 @@ body, html {
 }
 
 .station-img {
-    width: 48px; height: 48px;
+    width: 48px;
+    height: 48px;
     background: url('https://cdn-icons-png.flaticon.com/512/149/149071.png') center center / cover no-repeat;
     border-radius: 50%;
     border: 1.5px solid #e3e6ea;
-    box-shadow: 0 1px 3px 0 rgba(130,130,130,0.04);
+    box-shadow: 0 1px 3px 0 rgba(130, 130, 130, 0.04);
 }
 
 .station-location {
@@ -86,7 +99,7 @@ body, html {
     color: #3a7fe8;
     font-size: 1.04em;
     font-weight: 500;
-    background: rgba(58,127,232,0.07);
+    background: rgba(58, 127, 232, 0.07);
     border-radius: 8px;
     padding: 4px 10px;
     display: inline-block;
@@ -126,7 +139,7 @@ body, html {
     background: #f5f7fa;
     border-radius: 8px;
     padding: 6px 12px;
-    box-shadow: 0 1px 3px 0 rgba(58,127,232,0.04);
+    box-shadow: 0 1px 3px 0 rgba(58, 127, 232, 0.04);
 }
 .expected-signal .label {
     color: #888;
@@ -173,9 +186,9 @@ body, html {
 
 .chart-section {
     width: 480px;
-    background: rgba(255,255,255,0.98);
+    background: rgba(255, 255, 255, 0.98);
     border-radius: 16px;
-    box-shadow: 0 2px 12px 0 rgba(60,60,60,0.06);
+    box-shadow: 0 2px 12px 0 rgba(60, 60, 60, 0.06);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -212,7 +225,8 @@ body, html {
     font-size: 0.98em;
 }
 
-.rainfall-row, .distance-row {
+.rainfall-row,
+.distance-row {
     width: 100%;
     display: flex;
     justify-content: space-between;
@@ -234,18 +248,14 @@ body, html {
     margin: 8px 0 12px 0;
     position: relative;
     overflow: hidden;
-    box-shadow: 0 1px 4px 0 rgba(80,120,180,0.06);
+    box-shadow: 0 1px 4px 0 rgba(80, 120, 180, 0.06);
     display: flex;
     align-items: flex-end;
 }
 .chart-placeholder {
     width: 100%;
     height: 100%;
-    background: repeating-linear-gradient(
-        to top,
-        #d1e4fb 0 2px,
-        transparent 2px 24px
-    );
+    background: repeating-linear-gradient(to top, #d1e4fb 0 2px, transparent 2px 24px);
     opacity: 0.7;
     /* Use SVG or Chart.js for real chart */
 }
@@ -285,7 +295,8 @@ body, html {
         padding: 8px;
         gap: 10px;
     }
-    .station-card, .chart-section {
+    .station-card,
+    .chart-section {
         width: 31vw;
         min-width: 220px;
         max-width: 350px;
@@ -305,7 +316,8 @@ body, html {
         transform: translateX(-50%);
         padding: 8px 1vw;
     }
-    .station-card, .chart-section {
+    .station-card,
+    .chart-section {
         width: 98vw;
         min-width: 0;
         max-width: 600px;

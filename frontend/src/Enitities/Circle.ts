@@ -1,5 +1,5 @@
-import {LngLat, Map as MapLibreMap} from "maplibre-gl";
-import {circle as turfCircle} from "@turf/circle";
+import {LngLat, Map as MapLibreMap} from 'maplibre-gl';
+import {circle as turfCircle} from '@turf/circle';
 
 /**
  * Options for creating a Circle.
@@ -11,13 +11,12 @@ export type CircleOptions = {
     radius?: number;
     /** Center of the circle as a LngLat object. */
     center?: LngLat;
-}
+};
 
 /**
  * Represents a circle on a MapLibre map.
  */
 export class Circle {
-
     /**
      * The radius of the circle in meters.
      * @private
@@ -115,7 +114,6 @@ export class Circle {
         this.updateOnMap();
     }
 
-
     /**
      * Updates the circle's representation on the map.
      * Adds or updates the GeoJSON source and layers for the circle.
@@ -124,20 +122,17 @@ export class Circle {
     private updateOnMap() {
         if (this.map && this.center && this.radius > 0) {
             const circle = turfCircle(this.center.toArray(), this.radius, {units: 'meters'});
-            console.log(
-                'Circle:',
-                circle
-            )
-            console.log(circle)
+            console.log('Circle:', circle);
+            console.log(circle);
             if (this.map.getSource('location-radius-' + this.id)) {
-                console.log(this.map.getSource('location-radius-' + this.id))
+                console.log(this.map.getSource('location-radius-' + this.id));
                 // @ts-ignore
                 this.map.getSource('location-radius-' + this.id).setData(circle);
             } else {
-                console.log("adding source")
+                console.log('adding source');
                 this.map.addSource('location-radius-' + this.id, {
                     type: 'geojson',
-                    data: circle
+                    data: circle,
                 });
             }
 
@@ -148,8 +143,8 @@ export class Circle {
                     source: 'location-radius-' + this.id,
                     paint: {
                         'fill-color': this.color,
-                        'fill-opacity': 0.2
-                    }
+                        'fill-opacity': 0.2,
+                    },
                 });
 
                 // Add a line layer to draw the circle outline
@@ -159,8 +154,8 @@ export class Circle {
                     source: 'location-radius-' + this.id,
                     paint: {
                         'line-color': this.color,
-                        'line-width': 3
-                    }
+                        'line-width': 3,
+                    },
                 });
             }
         }

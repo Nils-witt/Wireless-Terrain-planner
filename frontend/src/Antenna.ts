@@ -3,11 +3,11 @@
  * Contains: AntennaEnum, Antenna class for antenna state and map marker updates.
  */
 
-import {LngLat, Map as MapLibreMap, Marker} from "maplibre-gl";
-import {DataProvider, DataProviderEventEnum} from "./DataProvider";
-import {UIHelpers} from "./uihelpers";
-import {DistanceUIController} from "./controllers/DistanceUIController";
-import {Circle} from "./Enitities/Circle";
+import {LngLat, Map as MapLibreMap, Marker} from 'maplibre-gl';
+import {DataProvider, DataProviderEventEnum} from './DataProvider';
+import {UIHelpers} from './uihelpers';
+import {DistanceUIController} from './controllers/DistanceUIController';
+import {Circle} from './Enitities/Circle';
 
 /**
  * Enum for identifying antennas.
@@ -16,7 +16,7 @@ import {Circle} from "./Enitities/Circle";
  */
 export enum AntennaEnum {
     ONE = 'left',
-    TWO = 'right'
+    TWO = 'right',
 }
 
 /**
@@ -90,22 +90,19 @@ export class Antenna {
         this.id = id;
         if (this.id === AntennaEnum.ONE) {
             this.marker = new Marker({
-                    color: '#0000FF',
-                }
-            )
+                color: '#0000FF',
+            });
             this.circle = new Circle({
                 color: '#0000FF',
-            })
+            });
         }
         if (this.id === AntennaEnum.TWO) {
             this.marker = new Marker({
-                    color: 'magenta',
-                }
-            )
+                color: 'magenta',
+            });
             this.circle = new Circle({
-                    color: 'magenta',
-                }
-            )
+                color: 'magenta',
+            });
         }
     }
 
@@ -265,7 +262,6 @@ export class Antenna {
      * @returns {void}
      */
     setAzimuth(to: Antenna): void {
-
         const azimuth = UIHelpers.calculateAzimuth(this.getLatlng(), to.getLatlng());
         this.updateUIElement('Azimuth', azimuth ? azimuth.toFixed(1) : 'N/A');
     }
@@ -277,7 +273,7 @@ export class Antenna {
      */
     setExpectedSignal(signal: number): void {
         const selector = `.station-card.${this.id} .expected-signal .value`;
-        document.querySelector(selector).textContent = signal.toFixed(2) + " dBm";
+        document.querySelector(selector).textContent = signal.toFixed(2) + ' dBm';
     }
 
     /**
@@ -286,10 +282,21 @@ export class Antenna {
      */
     getExpectedRange(): number {
         if (this.associatedAntenna) {
-            return UIHelpers.getMaxDistanceFriis(this.transmittedPower_dBm, this.antennaGain_dBi, this.associatedAntenna.getAntennaGain(), this.frequency * 1000000, this.associatedAntenna.getSensitivity());
-
+            return UIHelpers.getMaxDistanceFriis(
+                this.transmittedPower_dBm,
+                this.antennaGain_dBi,
+                this.associatedAntenna.getAntennaGain(),
+                this.frequency * 1000000,
+                this.associatedAntenna.getSensitivity(),
+            );
         } else {
-            return UIHelpers.getMaxDistanceFriis(this.transmittedPower_dBm, this.antennaGain_dBi, this.antennaGain_dBi, this.frequency * 1000000, this.antennaSensitivity);
+            return UIHelpers.getMaxDistanceFriis(
+                this.transmittedPower_dBm,
+                this.antennaGain_dBi,
+                this.antennaGain_dBi,
+                this.frequency * 1000000,
+                this.antennaSensitivity,
+            );
         }
     }
 
@@ -314,7 +321,7 @@ export class Antenna {
     }
 
     private updateUIElement(label: string, value: number | string): void {
-        document.querySelectorAll(`.station-card.${this.id} .station-row`).forEach(row => {
+        document.querySelectorAll(`.station-card.${this.id} .station-row`).forEach((row) => {
             row.querySelectorAll('.label').forEach((labelEl, idx) => {
                 if (labelEl.textContent.trim() === label) {
                     let el = row.querySelectorAll('.value')[idx] as HTMLInputElement;
@@ -330,7 +337,7 @@ export class Antenna {
 
     updateExpectedSignal(no_rec = false): void {
         if (!this.associatedAntenna) {
-            return
+            return;
         }
         const distance = DistanceUIController.calculateDistanceBetweenAntennas(this, this.associatedAntenna);
         const pr = UIHelpers.calculateFriisSignal(
@@ -338,7 +345,7 @@ export class Antenna {
             this.getAntennaGain(),
             this.getAssociatedAntenna().getAntennaGain(),
             240000,
-            distance
+            distance,
         );
         this.setExpectedSignal(pr);
         let range = this.getExpectedRange();
@@ -346,6 +353,5 @@ export class Antenna {
         if (!no_rec) {
             this.associatedAntenna.updateExpectedSignal(true);
         }
-
     }
 }

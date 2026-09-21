@@ -3,8 +3,8 @@
  * Contains: DataProvider singleton, event system, antenna and marker management.
  */
 
-import {Map as MapLibreMap} from "maplibre-gl";
-import {Antenna, AntennaEnum} from "./Antenna";
+import {Map as MapLibreMap} from 'maplibre-gl';
+import {Antenna, AntennaEnum} from './Antenna';
 
 /**
  * Type for event listeners in DataProvider.
@@ -25,7 +25,7 @@ export enum DataProviderEventEnum {
 export type DataProviderEventData = {
     antenna: Antenna;
     antenna_id: AntennaEnum;
-}
+};
 
 /**
  * Singleton class for managing antennas, map, and event listeners.
@@ -51,7 +51,10 @@ export class DataProvider {
      * Event listeners by event type.
      * @type {Map<DataProviderEventEnum, DataProviderEventListener[]>}
      */
-    private listeners: Map<DataProviderEventEnum, DataProviderEventListener[]> = new Map<DataProviderEventEnum, DataProviderEventListener[]>();
+    private listeners: Map<DataProviderEventEnum, DataProviderEventListener[]> = new Map<
+        DataProviderEventEnum,
+        DataProviderEventListener[]
+    >();
 
     /**
      * Constructor for DataProvider (private for singleton).
@@ -76,15 +79,15 @@ export class DataProvider {
     public init(map: MapLibreMap): void {
         const antenna_one = new Antenna(AntennaEnum.ONE);
         const antenna_two = new Antenna(AntennaEnum.TWO);
-        this.setAntenna(AntennaEnum.ONE, antenna_one)
-        this.setAntenna(AntennaEnum.TWO, antenna_two)
+        this.setAntenna(AntennaEnum.ONE, antenna_one);
+        this.setAntenna(AntennaEnum.TWO, antenna_two);
 
         antenna_one.addToMap(map);
         antenna_two.addToMap(map);
         antenna_one.setAssociatedAntenna(antenna_two);
         antenna_two.setAssociatedAntenna(antenna_one);
-        antenna_one.setDeviceName("Antenna One (Blue)");
-        antenna_two.setDeviceName("Antenna Two (Pink)");
+        antenna_one.setDeviceName('Antenna One (Blue)');
+        antenna_two.setDeviceName('Antenna Two (Pink)');
         antenna_one.setHeight(5);
         antenna_two.setHeight(6);
         antenna_one.setTransmittedPower(20);
@@ -94,7 +97,7 @@ export class DataProvider {
         antenna_one.setFrequency(240000);
         antenna_two.setFrequency(240000);
         antenna_one.setSensitivity(-100);
-        antenna_two.setSensitivity(-100)
+        antenna_two.setSensitivity(-100);
     }
 
     /**

@@ -3,8 +3,8 @@
  * Contains: DistanceUIController singleton for calculating and updating the distance display
  */
 
-import {Antenna, AntennaEnum} from "../Antenna";
-import {DataProvider} from "../DataProvider";
+import {Antenna, AntennaEnum} from '../Antenna';
+import {DataProvider} from '../DataProvider';
 
 /**
  * Singleton controller for updating the UI with the distance between antennas.
@@ -41,12 +41,13 @@ export class DistanceUIController {
         const coord1 = antenna_one.getLatlng();
         const coord2 = antenna_two.getLatlng();
         const R = 6371000; // Earth radius in meters
-        const toRad = (deg: number) => deg * Math.PI / 180;
+        const toRad = (deg: number) => (deg * Math.PI) / 180;
         const dLat = toRad(coord2.lat - coord1.lat);
         const dLon = toRad(coord2.lng - coord1.lng);
         const lat1 = toRad(coord1.lat);
         const lat2 = toRad(coord2.lat);
-        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        const a =
+            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
             Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1) * Math.cos(lat2);
         const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         const distance = R * c;
@@ -61,10 +62,10 @@ export class DistanceUIController {
         let antenna_one = DataProvider.getSharedInstance().getAntenna(AntennaEnum.ONE);
         let antenna_two = DataProvider.getSharedInstance().getAntenna(AntennaEnum.TWO);
         if (!antenna_one || !antenna_two) {
-            document.querySelector('.distance-row span').textContent = "N/A m";
+            document.querySelector('.distance-row span').textContent = 'N/A m';
             return;
         }
         let distance = DistanceUIController.calculateDistanceBetweenAntennas(antenna_one, antenna_two);
-        document.querySelector('.distance-row span').textContent = distance.toFixed() + " m";
+        document.querySelector('.distance-row span').textContent = distance.toFixed() + ' m';
     }
 }

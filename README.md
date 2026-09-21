@@ -101,6 +101,7 @@ curl "http://localhost:5001/api?latitude1=52.0&longitude1=13.0&latitude2=52.1&lo
 ## Build & CI notes
 
 - Frontend build: `cd frontend && npm run build` — this runs `tsc && vite build` as defined in `frontend/package.json` and writes to `internal/web/dist` (git-ignored except for a `.gitkeep` placeholder).
+- Frontend lint and format: `npm run lint` (oxlint, config in `frontend/.oxlintrc.json`), `npm run format` to apply Prettier and `npm run format:check` to verify it (config in `frontend/.prettierrc.json`). CI runs `tsc`, lint and the format check.
 - Server build: `go build ./cmd/server` (build the frontend first to embed it) — CI runs `go vet ./...` and `go test -race -shuffle=on ./...`, plus `golangci-lint` (`.golangci.yml`) and `govulncheck`. The Dockerfile builds a static binary.
 - Releases: pushing a `v*` tag runs GoReleaser (`.goreleaser.yaml`), which builds the frontend, cross-compiles the server for linux/darwin/windows on amd64/arm64 and attaches the archives and `checksums.txt` to a GitHub Release. Pull requests that touch the code run the same build as a snapshot without publishing. To try it locally: `goreleaser release --snapshot --clean --skip=publish`.
 

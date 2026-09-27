@@ -14,13 +14,13 @@
   "devDependencies": {
     "@types/node": "^26.6.2",
     "oxlint": "^1.85.0",
-    "prettier": "^3.9.8",
+    "prettier": "^3.9.9",
     "typescript": "^7.0.2",
-    "vite": "^8.3.0"
+    "vite": "^8.3.1"
   },
   "dependencies": {
     "@turf/circle": "^7.4.0",
     "chart.js": "^4.5.1",
-    "maplibre-gl": "^6.10.0"
+    "maplibre-gl": "^6.11.2"
   }
 }
